@@ -54,20 +54,29 @@
     <div class="result" id="result"></div>
 
     <script>
-        function calculerCredit() {
+        async function calculerCredit() {
             const montant = parseFloat(document.getElementById('montant').value);
             const taux = parseFloat(document.getElementById('taux').value);
             const duree = parseInt(document.getElementById('duree').value);
             
-            const tauxMensuel = taux / 12 / 100;
-            const nombreMensualites = duree * 12;
-            const mensualite = montant * tauxMensuel / (1 - (1 + tauxMensuel) ** -nombreMensualites);
-            const coutTotal = mensualite * nombreMensualites - montant;
+            const response = await fetch('/calculer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    montant_emprunte: montant,
+                    taux_annuel: taux,
+                    duree_annees: duree
+                })
+            });
+            
+            const data = await response.json();
             
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
-                <p>Mensualité: ${mensualite.toFixed(2)} EUR</p>
-                <p>Coût total du crédit: ${coutTotal.toFixed(2)} EUR</p>
+                <p>Mensualité: ${data.mensualite.toFixed(2)} EUR</p>
+                <p>Coût total du crédit: ${data.cout_total.toFixed(2)} EUR</p>
             `;
         }
     </script>
